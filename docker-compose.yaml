@@ -8,6 +8,9 @@ services:
   backend:
     build:
       context: ./backend
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
     ports:
       - '5000:5000'
     depends_on:
@@ -16,6 +19,9 @@ services:
   frontend:
     build:
       context: ./frontend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
     ports:
       - '3000:3000'
     depends_on:
