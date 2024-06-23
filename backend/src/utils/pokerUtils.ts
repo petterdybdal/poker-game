@@ -36,7 +36,3 @@ export const shuffleDeck = (deck: PokerCard[]): PokerCard[] => {
   }
   return deck;
 };
-
-export const compareTwoHands = (hand1: PokerHand, hand2: PokerHand): string => {
-  return 'Not implemented yet';
-};

@@ -1,7 +1,8 @@
 import { PokerHand } from '../models/poker';
 import { PokerHandViewModel } from '../models/pokerViewModels';
+import { compareTwoHands } from '../utils/comparing';
 import { handToViewModel, viewModelToHand } from '../utils/mappers';
-import { compareTwoHands, createDeck, shuffleDeck } from '../utils/pokerUtils';
+import { createDeck, shuffleDeck } from '../utils/pokerUtils';
 
 export const createHand = (): PokerHandViewModel => {
   const deck = createDeck();
