@@ -28,6 +28,10 @@ const handRank: Record<number, string> = {
   8: 'Straight flush',
 };
 
+export const getHandRankName = (hand: PokerHand): string => {
+  return handRank[getHandRank(hand)];
+};
+
 const getCardValue = (card: PokerCard): number => {
   return valueRank[card.value];
 };

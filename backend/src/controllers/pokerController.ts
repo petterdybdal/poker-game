@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
 import { createHand, getHands, compareHands } from '../services/pokerService';
-import { PokerHandViewModel } from '../models/pokerViewModels';
+import { CompareRequest, CreateResponse } from '../models/api';
 
-export const createPokerHand = (_: Request, res: Response) => {
+export const createPokerHand = (_: Request, res: Response<CreateResponse>) => {
   const hand = createHand();
   res.status(201).json(hand);
 };
@@ -13,7 +13,7 @@ export const getAllPokerHands = (_: Request, res: Response) => {
 };
 
 export const comparePokerHands = (
-  req: Request<any, any, { hands: PokerHandViewModel[] }>,
+  req: Request<any, any, CompareRequest>,
   res: Response
 ) => {
   const { hands } = req.body;

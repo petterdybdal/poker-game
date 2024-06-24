@@ -1,14 +1,19 @@
 import { PokerHand } from '../models/poker';
 import { PokerHandViewModel } from '../models/pokerViewModels';
-import { compareMultipleHands } from '../utils/comparing';
+import { compareMultipleHands, getHandRankName } from '../utils/comparing';
 import { handToViewModel, viewModelToHand } from '../utils/mappers';
 import { createDeck, shuffleDeck } from '../utils/pokerUtils';
 
-export const createHand = (): PokerHandViewModel => {
+export const createHand = (): { hand: PokerHandViewModel; rank: string } => {
   const deck = createDeck();
   const shuffledDeck = shuffleDeck(deck);
 
-  return handToViewModel(shuffledDeck.slice(0, 5));
+  const hand = shuffledDeck.slice(0, 5) as PokerHand;
+
+  return {
+    hand: handToViewModel(hand),
+    rank: getHandRankName(hand),
+  };
 };
 
 export const getHands = (): PokerHand[] => {
