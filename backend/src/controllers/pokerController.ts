@@ -1,15 +1,30 @@
 import { Request, Response } from 'express';
-import { createHand, getHands, compareHands } from '../services/pokerService';
+import { createHand, compareHands } from '../services/pokerService';
 import { CompareRequest, CreateResponse } from '../models/api';
+import { getAllHands, storeHand } from '../services/redisService';
+import { v4 as uuidv4 } from 'uuid';
 
 export const createPokerHand = (_: Request, res: Response<CreateResponse>) => {
   const hand = createHand();
-  res.status(201).json(hand);
+  const handId = uuidv4();
+
+  try {
+    storeHand(handId, hand.hand);
+    res.status(201).json(hand);
+  } catch (error) {
+    console.error('Error storing hand in Redis:', error);
+    res.status(500);
+  }
 };
 
-export const getAllPokerHands = (_: Request, res: Response) => {
-  const hands = getHands();
-  res.status(200).json(hands);
+export const getAllPokerHands = async (_: Request, res: Response) => {
+  try {
+    const hands = await getAllHands();
+    res.status(200).json(hands);
+  } catch (error) {
+    console.error('Error retrieving hands from Redis:', error);
+    res.status(500).json({ error: 'Failed to retrieve hands' });
+  }
 };
 
 export const comparePokerHands = (

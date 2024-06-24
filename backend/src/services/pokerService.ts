@@ -16,10 +16,6 @@ export const createHand = (): { hand: PokerHandViewModel; rank: string } => {
   };
 };
 
-export const getHands = (): PokerHand[] => {
-  return [];
-};
-
 export const compareHands = (
   hands: PokerHandViewModel[]
 ): PokerHandViewModel[] => {
