@@ -13,14 +13,10 @@ export const getAllPokerHands = (_: Request, res: Response) => {
 };
 
 export const comparePokerHands = (
-  req: Request<
-    any,
-    any,
-    { hand1: PokerHandViewModel; hand2: PokerHandViewModel }
-  >,
+  req: Request<any, any, { hands: PokerHandViewModel[] }>,
   res: Response
 ) => {
-  const { hand1, hand2 } = req.body;
-  const result = compareHands(hand1, hand2);
+  const { hands } = req.body;
+  const result = compareHands(hands);
   res.status(200).json(result);
 };

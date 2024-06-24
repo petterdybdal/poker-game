@@ -1,6 +1,6 @@
 import { PokerHand } from '../models/poker';
 import { PokerHandViewModel } from '../models/pokerViewModels';
-import { compareTwoHands } from '../utils/comparing';
+import { compareMultipleHands } from '../utils/comparing';
 import { handToViewModel, viewModelToHand } from '../utils/mappers';
 import { createDeck, shuffleDeck } from '../utils/pokerUtils';
 
@@ -16,8 +16,8 @@ export const getHands = (): PokerHand[] => {
 };
 
 export const compareHands = (
-  hand1: PokerHandViewModel,
-  hand2: PokerHandViewModel
-): string => {
-  return compareTwoHands(viewModelToHand(hand1), viewModelToHand(hand2));
+  hands: PokerHandViewModel[]
+): PokerHandViewModel[] => {
+  const winners = compareMultipleHands(hands.map(viewModelToHand));
+  return winners.map(handToViewModel);
 };
