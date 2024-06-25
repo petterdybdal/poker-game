@@ -40,13 +40,15 @@ const sortByValueDescending = (hand: PokerHand): PokerHand => {
   return hand.sort((a, b) => getCardValue(b) - getCardValue(a));
 };
 
-const getNumberOfDuplicates = (hand: PokerHand): any => {
+const getNumberOfDuplicates = (hand: PokerHand): number[] => {
   const values = hand.map((card) => card.value);
-  const valueCounts = values.reduce((acc, value) => {
-    acc[value] = (acc[value] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>);
-  return Object.values(valueCounts);
+  const valueCounts = new Map<string, number>();
+
+  values.forEach((value) => {
+    valueCounts.set(value, (valueCounts.get(value) || 0) + 1);
+  });
+
+  return Array.from(valueCounts.values());
 };
 
 const getNumberOfUniquePairs = (hand: PokerHand): number => {
@@ -56,15 +58,32 @@ const getNumberOfUniquePairs = (hand: PokerHand): number => {
   ).size;
 };
 
+const isAceLowStraight = (hand: PokerHand): boolean => {
+  const values = hand.map(getCardValue);
+  return (
+    values[0] === 14 &&
+    values[1] === 5 &&
+    values[2] === 4 &&
+    values[3] === 3 &&
+    values[4] === 2
+  );
+};
+
 const isFlush = (hand: PokerHand): boolean => {
   return hand.every((card) => card.suit === hand[0].suit);
 };
 
 const isStraight = (hand: PokerHand): boolean => {
   const values = hand.map(getCardValue);
-  const min = Math.min(...values);
-  const max = Math.max(...values);
-  return max - min === 4 && new Set(values).size === 5;
+
+  const straightIsAceLow = isAceLowStraight(hand);
+
+  // Check for regular straight
+  const isRegularStraight = values.every(
+    (value, index) => value === values[0] + index
+  );
+
+  return straightIsAceLow || isRegularStraight;
 };
 
 const isFullHouse = (hand: PokerHand): boolean => {
@@ -125,6 +144,8 @@ export const compareMultipleHands = (hands: PokerHand[]): PokerHand[] => {
       return compareTwoPairs(winningHands);
     case 3:
       return compareThreeOrFourOfAKind(winningHands, 3);
+    case 4:
+      compareStraight(winningHands);
     case 6:
       return compareFullHouse(winningHands);
     case 7:
@@ -154,9 +175,9 @@ const comparePairs = (hands: PokerHand[]): PokerHand[] => {
   const highestPairValue = Math.max(
     ...winningHands.map((h) => {
       const values = h.map((c) => c.value);
-      return parseInt(
+      return valueRank[
         values.find((v) => values.filter((value) => value === v).length === 2)!
-      );
+      ];
     })
   );
   winningHands = winningHands.filter((h) =>
@@ -173,9 +194,9 @@ const compareTwoPairs = (hands: PokerHand[]): PokerHand[] => {
   const highestPairValue = Math.max(
     ...winningHands.map((h) => {
       const values = h.map((c) => c.value);
-      return parseInt(
+      return valueRank[
         values.find((v) => values.filter((value) => value === v).length === 2)!
-      );
+      ];
     })
   );
   winningHands = winningHands.filter((h) =>
@@ -186,13 +207,13 @@ const compareTwoPairs = (hands: PokerHand[]): PokerHand[] => {
   const secondHighestPairValue = Math.max(
     ...winningHands.map((h) => {
       const values = h.map((c) => c.value);
-      return parseInt(
+      return valueRank[
         values.find(
           (v) =>
             values.filter((value) => value === v).length === 2 &&
             v !== highestPairValue.toString()
         )!
-      );
+      ];
     })
   );
   winningHands = winningHands.filter((h) =>
@@ -201,6 +222,16 @@ const compareTwoPairs = (hands: PokerHand[]): PokerHand[] => {
   if (winningHands.length === 1) return winningHands;
   // Multiple hands have the same pairs, so we compare high card
   return compareHighCard(winningHands);
+};
+
+const compareStraight = (hands: PokerHand[]): PokerHand[] => {
+  // If there are ace low straights we need to handle this edge-case,
+  // since sorting the hand would lead to the Ace counting as 14.
+  // Otherwise we can just return compareHighCard
+  const aceLowStraights = hands.filter((h) => isAceLowStraight(h));
+  if (aceLowStraights.length === hands.length) return compareHighCard(hands);
+  const filteredHands = hands.filter((h) => !isAceLowStraight(h));
+  return compareHighCard(filteredHands);
 };
 
 const compareThreeOrFourOfAKind = (
@@ -213,12 +244,12 @@ const compareThreeOrFourOfAKind = (
   const highestValue = Math.max(
     ...winningHands.map((h) => {
       const values = h.map((c) => c.value);
-      return parseInt(
+      return valueRank[
         values.find(
           (v) =>
             values.filter((value) => value === v).length === numberOfDuplicates
         )!
-      );
+      ];
     })
   );
   return winningHands.filter((h) =>
@@ -232,9 +263,9 @@ const compareFullHouse = (hands: PokerHand[]): PokerHand[] => {
   const highestThreeOfAKindValue = Math.max(
     ...hands.map((h) => {
       const values = h.map((c) => c.value);
-      return parseInt(
+      return valueRank[
         values.find((v) => values.filter((value) => value === v).length === 3)!
-      );
+      ];
     })
   );
   return hands.filter((h) =>
